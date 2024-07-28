@@ -25,7 +25,7 @@ jobs:
           
       - name: Tags docker image
         id: meta
-        use: docker/metadata-action@v5
+        uses: docker/metadata-action@v5
         with:
           images: takashilouisnguyen/crawler-website
           tags: |
