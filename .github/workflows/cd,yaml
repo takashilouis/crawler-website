@@ -1,0 +1,36 @@
+name: "crawler-website-cd"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  cd:
+    name: Connect SSH to server and deploy
+    run-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        
+      - name: Tags docker image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: takashilouisnguyen/crawler-website
+          tags: |
+            type=raw, value={{date 'YYYY-MM-DD'}}
+
+      - name: Deploy
+        uses: applyeboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          port: 22
+          script: |
+            pwd
