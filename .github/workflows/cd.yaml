@@ -12,7 +12,7 @@ permissions:
 jobs:
   cd:
     name: Connect SSH to server and deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -33,4 +33,5 @@ jobs:
           key: ${{ secrets.SSH_PRIV_KEY }}
           port: 22
           script: |
-            pwd
+            cd /home/ubuntu/actions-runner/_work/crawler-website/crawler-website
+            sh deploy.sh ${{ steps.meta.outputs.tags }}
