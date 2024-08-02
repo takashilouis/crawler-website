@@ -68,8 +68,7 @@ const Blog = () => {
         />
         <main>
           <MainFeaturedPost post={mainFeaturedPost} />
-          <Grid container spacing={4}>
-            {featuredPosts.map((post) => {
+          <Grid container spacing={4}>            {featuredPosts.map((post) => {
               if (searchData.length === 0) {
                 return <FeaturedPost key={post.title} post={post} />;
               } else if (searchData.includes(post.id)) {
@@ -81,7 +80,7 @@ const Blog = () => {
           </Grid>
         </main>
       </Container>
-      <Footer title="Footer" description="Crawler System" />
+      <Footer title="Footer" description="Crawler System 2024" />
     </ThemeProvider>
   );
 };
