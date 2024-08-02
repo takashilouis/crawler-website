@@ -36,4 +36,4 @@ jobs:
             docker rm -f website &2>/dev/null || true
             docker images -- format '{{.Repository}}:{{.Tag}}' | grep 'takashilouisnguyen/crawler-website' | xargs -r docker rmi -f
             docker run --net crawler -d --name website -p 3100:80 ${{ steps.meta.outputs.tags }}
-          continue-on-error: true
+        continue-on-error: true
