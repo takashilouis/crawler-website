@@ -1,113 +1,71 @@
 # Crawler system
 ![Crawler system architecture](public/crawler-system-architecture.png)
 
-🕷️ Crawler System Architecture
+# 🕷️ Crawler System Architecture
 
-This architecture describes a full pipeline that crawls data from websites, processes it through Redis and PostgreSQL, and synchronizes it into Elasticsearch via Kafka Connect for high-performance search capabilities.
+![Crawler Architecture](public/crawler-system-architecture.png)
 
-🔄 System Flow Breakdown
-1. Website & Crawler
-A crawler scrapes or fetches data from target websites.
+This system is designed to crawl data from websites, store and stream the information through a scalable pipeline, and make it searchable via Elasticsearch. Below is a detailed explanation of each component involved in the data flow.
 
-This data is pushed into a Redis Stream, enabling asynchronous processing.
+---
 
-2. Redis Stream & Consumer
-The Redis Stream acts as a lightweight message queue.
+## 🔄 System Flow Overview
 
-A consumer listens to this stream, processes the messages, and writes the relevant content to a PostgreSQL database.
+### 1. Website & Crawler
+- The **crawler** retrieves data from websites in real-time or on a schedule.
+- It pushes raw data into a **Redis Stream**, enabling decoupled and asynchronous message processing.
 
-3. PostgreSQL
-Acts as the primary data store.
+### 2. Redis Stream → Consumer
+- **Redis Stream** acts as a lightweight message queue.
+- A **consumer** listens to new stream entries, processes the data, and writes it into **PostgreSQL**.
 
-New posts are accessible via the /posts endpoint through the API Service.
+### 3. PostgreSQL
+- This is the primary database for storing structured post data.
+- The API layer retrieves data from here through the `/posts` endpoint.
+- Changes to this database are captured by **Debezium**.
 
-It is also monitored by Debezium (CDC - Change Data Capture) for changes.
+### 4. Kafka Connect + Debezium
+- **Debezium Postgres Connector** captures inserts/updates from Postgres and publishes them to a **Kafka topic**.
+- **Debezium Elasticsearch Connector** subscribes to that Kafka topic and updates **Elasticsearch** accordingly.
 
-4. Kafka Connect with Debezium
-Debezium Postgres Connector captures changes from PostgreSQL and pushes them into a Kafka Topic.
+### 5. Elasticsearch
+- Optimized for full-text search.
+- The system exposes a `/posts/search` endpoint to perform fast queries over indexed content.
 
-Debezium Elasticsearch Connector reads from that Kafka Topic and writes updates into Elasticsearch.
+### 6. API Service
+- Central service that serves both `/posts` (from Postgres) and `/posts/search` (from Elasticsearch).
+- Acts as the backend for the **Website**, delivering both recent and searchable content.
 
-5. Elasticsearch
-Stores documents optimized for search and supports advanced querying.
+---
 
-The API provides a /posts/search endpoint backed by Elasticsearch.
+## 🧱 Technology Stack
 
-6. API Service
-Serves the frontend with both /posts (from Postgres) and /posts/search (from Elasticsearch).
+| Component            | Technology                        |
+|----------------------|------------------------------------|
+| Crawling             | Python (Scrapy, Puppeteer, etc.)   |
+| Messaging Queue      | Redis Stream                       |
+| Database             | PostgreSQL                         |
+| Change Data Capture  | Debezium                           |
+| Streaming Platform   | Apache Kafka                       |
+| Search Engine        | Elasticsearch                      |
+| Backend API          | FastAPI / Express.js (custom)      |
+| Frontend             | Website consuming REST APIs        |
 
-Enables the user interface (Website) to consume and display this data efficiently.
+---
 
-🔧 Technologies Used
-Component	Technology
-Message Queue	Redis Stream
-Database	PostgreSQL
-Change Data Capture	Debezium (Postgres → Kafka)
-Stream Processing	Kafka
-Search Engine	Elasticsearch
-Backend API	Node.js / FastAPI / etc.
-Crawler	Python Scrapy / Puppeteer
+## ✨ Features
 
+- Real-time website data crawling
+- Stream-based ingestion pipeline
+- Event-driven updates to search index
+- Dual-database architecture: Postgres for transactional data, Elasticsearch for search
+- Scalable and modular design using Kafka Connect
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🔧 Future Improvements
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Add rate limiting and retry logic to the crawler
+- Implement deduplication in the consumer logic
+- Deploy system using Docker and Kubernetes
+- Integrate monitoring (e.g., Prometheus + Grafana)
