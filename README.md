@@ -1,9 +1,53 @@
 # Crawler system
 ![Crawler system architecture](public/crawler-system-architecture.png)
 
-## Available Scripts
+🕷️ Crawler System Architecture
 
-In the project directory, you can run:
+This architecture describes a full pipeline that crawls data from websites, processes it through Redis and PostgreSQL, and synchronizes it into Elasticsearch via Kafka Connect for high-performance search capabilities.
+
+🔄 System Flow Breakdown
+1. Website & Crawler
+A crawler scrapes or fetches data from target websites.
+
+This data is pushed into a Redis Stream, enabling asynchronous processing.
+
+2. Redis Stream & Consumer
+The Redis Stream acts as a lightweight message queue.
+
+A consumer listens to this stream, processes the messages, and writes the relevant content to a PostgreSQL database.
+
+3. PostgreSQL
+Acts as the primary data store.
+
+New posts are accessible via the /posts endpoint through the API Service.
+
+It is also monitored by Debezium (CDC - Change Data Capture) for changes.
+
+4. Kafka Connect with Debezium
+Debezium Postgres Connector captures changes from PostgreSQL and pushes them into a Kafka Topic.
+
+Debezium Elasticsearch Connector reads from that Kafka Topic and writes updates into Elasticsearch.
+
+5. Elasticsearch
+Stores documents optimized for search and supports advanced querying.
+
+The API provides a /posts/search endpoint backed by Elasticsearch.
+
+6. API Service
+Serves the frontend with both /posts (from Postgres) and /posts/search (from Elasticsearch).
+
+Enables the user interface (Website) to consume and display this data efficiently.
+
+🔧 Technologies Used
+Component	Technology
+Message Queue	Redis Stream
+Database	PostgreSQL
+Change Data Capture	Debezium (Postgres → Kafka)
+Stream Processing	Kafka
+Search Engine	Elasticsearch
+Backend API	Node.js / FastAPI / etc.
+Crawler	Python Scrapy / Puppeteer
+
 
 ### `npm start`
 
