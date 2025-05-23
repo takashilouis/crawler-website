@@ -1,6 +1,5 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Crawler system
+![Crawler system architecture](public/crawler-system-architecture.png)
 
 ## Available Scripts
 
